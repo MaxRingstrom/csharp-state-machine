@@ -4,7 +4,6 @@ using Xunit.Abstractions;
 
 namespace CSharpStateMachineLibTest.StateMachine.internals
 {
-
     enum State
     {
         Idle,
@@ -18,7 +17,6 @@ namespace CSharpStateMachineLibTest.StateMachine.internals
     {
         public string? StringValue { get; init; }
     }
-
 
     public class StateMachineModelTests(ITestOutputHelper output)
     {
