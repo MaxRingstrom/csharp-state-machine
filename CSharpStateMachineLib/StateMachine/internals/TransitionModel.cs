@@ -1,8 +1,8 @@
 ﻿using System;
 
-namespace MaxRingstrom.CSharpStateMachineLib
+namespace MaxRingstrom.CSharpStateMachineLib.StateMachine.@internal
 {
-    public class TransitionModel<TState, TSignal, TPayload> where TState : struct, IConvertible, IComparable where TSignal : struct, IConvertible, IComparable
+    public class TransitionModel<TState, TSignal, TPayload> where TState : struct, IConvertible, IComparable where TSignal : struct, IConvertible, IComparable where TPayload : class
     {
         public TState From { get; }
         public TState To { get; }

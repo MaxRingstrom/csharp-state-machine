@@ -1,17 +1,14 @@
 using MaxRingstrom.CSharpStateMachineLib;
+using MaxRingstrom.CSharpStateMachineLib.StateMachine;
+using MaxRingstrom.CSharpStateMachineLib.StateMachine.internals;
 using Xunit.Abstractions;
 
-namespace CSharpStateMachineLibTest
+namespace CSharpStateMachineLibTest.StateMachine
 {
-    public class StateMachineTests
+    public class AsyncStateMachineTests(ITestOutputHelper output)
     {
+        private readonly ITestOutputHelper output = output;
 
-        private readonly ITestOutputHelper output;
-
-        public StateMachineTests(ITestOutputHelper output)
-        {
-            this.output = output;
-        }
         enum State
         {
             Idle,
@@ -46,7 +43,7 @@ namespace CSharpStateMachineLibTest
             string? theTargetValue = "default";
             string expectedValue = "expected";
 
-            var model = new StateMachineModelBuilder<State, Signal, Payload>("Call state machine")
+            var model = new StateMachineConfigurationBuilder<State, Signal, Payload>("Call state machine")
 
                 // Idle -Dial-> Dialing
                 .From(State.Idle).To(State.Dialing).On(Signal.Dial)
@@ -57,17 +54,18 @@ namespace CSharpStateMachineLibTest
                         })
                 .Build();
 
-            using (var stateMachine = new StateMachine<State, Signal, Payload>(model))
+            using (var stateMachine = new AsyncStateMachine<State, Signal, Payload>(model))
             {
                 stateMachine.TransitionActivated += StateMachine_TransitionActivated;
 
                 stateMachine.Init(State.Idle);
                 await stateMachine.SendAsync(Signal.Dial, new Payload() { StringValue = expectedValue });
             }
+
             Assert.Equal(expectedValue, theTargetValue);
         }
 
-        private void StateMachine_TransitionActivated(object? sender, StateMachine<State, Signal, Payload>.TransitionActivatedEventArguments e)
+        private void StateMachine_TransitionActivated(object? sender, TransitionActivatedEventArgs<State, Signal, Payload> e)
         {
             output.WriteLine($"{e.From} -{e.Signal}-> {e.To}");
         }

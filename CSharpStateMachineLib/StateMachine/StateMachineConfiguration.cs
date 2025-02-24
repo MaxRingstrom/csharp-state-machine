@@ -1,21 +1,22 @@
-﻿using System;
+﻿using MaxRingstrom.CSharpStateMachineLib.StateMachine.@internal;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace MaxRingstrom.CSharpStateMachineLib
+namespace MaxRingstrom.CSharpStateMachineLib.StateMachine
 {
-    public interface IReadOnlyStateMachineModel<TState, TSignal, TPayload> where TState : struct, IConvertible, IComparable where TSignal : struct, IConvertible, IComparable
+    public interface IReadOnlyStateMachineConfiguration<TState, TSignal, TPayload> where TState : struct, IConvertible, IComparable where TSignal : struct, IConvertible, IComparable where TPayload : class
     {
-        IEnumerable<TransitionModel<TState, TSignal, TPayload>> GetTransitions(TState fromState, TSignal signal);
+        public IEnumerable<TransitionModel<TState, TSignal, TPayload>> GetTransitions(TState fromState, TSignal signal);
     }
-    public class StateMachineModel<TState, TSignal, TPayload> : IReadOnlyStateMachineModel<TState, TSignal, TPayload> where TState : struct, IConvertible, IComparable where TSignal : struct, IConvertible, IComparable
+    public class StateMachineConfiguration<TState, TSignal, TPayload> : IReadOnlyStateMachineConfiguration<TState, TSignal, TPayload> where TState : struct, IConvertible, IComparable where TSignal : struct, IConvertible, IComparable where TPayload: class
     {
         private readonly string name;
         private HashSet<TState> states = new HashSet<TState>();
         private HashSet<TSignal> signals = new HashSet<TSignal>();
         private Dictionary<TState, List<TransitionModel<TState, TSignal, TPayload>>> transitions = new Dictionary<TState, List<TransitionModel<TState, TSignal, TPayload>>>();
 
-        public StateMachineModel(string name)
+        public StateMachineConfiguration(string name)
         {
             this.name = name;
         }
@@ -37,13 +38,13 @@ namespace MaxRingstrom.CSharpStateMachineLib
 
         internal void AddTransition(TState fromState, TState toState, TSignal signal, Func<TPayload, bool>? guard, Action<TPayload> transitionFn)
         {
-            if(!transitions.TryGetValue(fromState, out var transitionsForFromState))
+            if (!transitions.TryGetValue(fromState, out var transitionsForFromState))
             {
                 transitionsForFromState = new List<TransitionModel<TState, TSignal, TPayload>>();
                 transitions.Add(fromState, transitionsForFromState);
             }
 
-            transitionsForFromState.Add(new TransitionModel<TState, TSignal, TPayload> (fromState, toState, signal, guard, transitionFn));
+            transitionsForFromState.Add(new TransitionModel<TState, TSignal, TPayload>(fromState, toState, signal, guard, transitionFn));
         }
     }
 }

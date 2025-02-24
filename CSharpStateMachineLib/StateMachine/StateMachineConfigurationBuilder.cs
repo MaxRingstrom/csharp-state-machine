@@ -1,24 +1,24 @@
 ﻿using System;
 
-namespace MaxRingstrom.CSharpStateMachineLib
+namespace MaxRingstrom.CSharpStateMachineLib.StateMachine
 {
-    public class StateMachineModelBuilder<TState, TSignal, TPayload> where TState : struct, IConvertible, IComparable where TSignal : struct, IConvertible, IComparable
+    public class StateMachineConfigurationBuilder<TState, TSignal, TPayload> where TState : struct, IConvertible, IComparable where TSignal : struct, IConvertible, IComparable where TPayload : class
     {
-        private StateMachineModel<TState, TSignal, TPayload> model;
+        private StateMachineConfiguration<TState, TSignal, TPayload> configuration;
 
-        public StateMachineModelBuilder(string name)
+        public StateMachineConfigurationBuilder(string name)
         {
-            model = new StateMachineModel<TState, TSignal, TPayload>(name);
+            configuration = new StateMachineConfiguration<TState, TSignal, TPayload>(name);
         }
 
         public StateMachineTransitionBuilder From(TState fromState)
         {
-            return new StateMachineTransitionBuilder(fromState, this.model, this);
+            return new StateMachineTransitionBuilder(fromState, configuration, this);
         }
 
-        public IReadOnlyStateMachineModel<TState, TSignal, TPayload> Build()
+        public IReadOnlyStateMachineConfiguration<TState, TSignal, TPayload> Build()
         {
-            return model;
+            return configuration;
         }
 
         public interface ITransitionTargetSelector
@@ -38,7 +38,7 @@ namespace MaxRingstrom.CSharpStateMachineLib
 
         public interface ITransitionActionSelector
         {
-            StateMachineModelBuilder<TState, TSignal, TPayload> Do(Action<TPayload> payload);
+            StateMachineConfigurationBuilder<TState, TSignal, TPayload> Do(Action<TPayload> payload);
         }
 
         public interface ITransitionGuardAndActionSelector : ITransitionActionSelector, ITransitionGuardSelector
@@ -48,20 +48,20 @@ namespace MaxRingstrom.CSharpStateMachineLib
         public class StateMachineTransitionBuilder : ITransitionTargetSelector, ITransitionSignalSelector, ITransitionGuardAndActionSelector
         {
             private readonly TState fromState;
-            private readonly StateMachineModel<TState, TSignal, TPayload> model;
-            private readonly StateMachineModelBuilder<TState, TSignal, TPayload> modelBuilder;
+            private readonly StateMachineConfiguration<TState, TSignal, TPayload> model;
+            private readonly StateMachineConfigurationBuilder<TState, TSignal, TPayload> modelBuilder;
             private TState toState;
             private TSignal signal;
             private Func<TPayload, bool>? guard;
 
-            public StateMachineTransitionBuilder(TState fromState, StateMachineModel<TState, TSignal, TPayload> model, StateMachineModelBuilder<TState, TSignal, TPayload> modelBuilder)
+            public StateMachineTransitionBuilder(TState fromState, StateMachineConfiguration<TState, TSignal, TPayload> model, StateMachineConfigurationBuilder<TState, TSignal, TPayload> modelBuilder)
             {
                 this.fromState = fromState;
                 this.model = model;
                 this.modelBuilder = modelBuilder;
             }
 
-            public StateMachineModelBuilder<TState, TSignal, TPayload> Do(Action<TPayload> transitionFn)
+            public StateMachineConfigurationBuilder<TState, TSignal, TPayload> Do(Action<TPayload> transitionFn)
             {
                 model.AddState(fromState);
                 model.AddState(toState);
@@ -72,7 +72,7 @@ namespace MaxRingstrom.CSharpStateMachineLib
                 return modelBuilder;
             }
 
-            public StateMachineModelBuilder<TState, TSignal, TPayload>.ITransitionActionSelector If(Func<TPayload, bool> guard)
+            public StateMachineConfigurationBuilder<TState, TSignal, TPayload>.ITransitionActionSelector If(Func<TPayload, bool> guard)
             {
                 this.guard = guard;
                 return this;
