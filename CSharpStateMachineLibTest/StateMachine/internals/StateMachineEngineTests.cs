@@ -18,7 +18,7 @@ namespace CSharpStateMachineLibTest.StateMachine.internals
         public string? StringValue { get; init; }
     }
 
-    public class StateMachineModelTests(ITestOutputHelper output)
+    public class StateMachineEngineTests(ITestOutputHelper output)
     {
         private ITestOutputHelper output = output;
 
@@ -28,11 +28,11 @@ namespace CSharpStateMachineLibTest.StateMachine.internals
             var configuration = new StateMachineConfigurationBuilder<State, Signal, Payload>("Test machine")
                 .Build();
 
-            var model = new StateMachineModel<State, Signal, Payload>(configuration);
-            model.TransitionActivated += LogTransitionActivated;
-            model.Init(State.Idle);
+            var engine = new StateMachineEngine<State, Signal, Payload>(configuration);
+            engine.TransitionActivated += LogTransitionActivated;
+            engine.Init(State.Idle);
 
-            Assert.Equal(State.Idle, model.CurrentState);
+            Assert.Equal(State.Idle, engine.CurrentState);
         }
 
         private void LogTransitionActivated(object? sender, TransitionActivatedEventArgs<State, Signal, Payload> e)

@@ -12,12 +12,12 @@ namespace MaxRingstrom.CSharpStateMachineLib.StateMachine
 
         private CancellationTokenSource? cancellationTokenSource;
         private BlockingCollection<SignalInfo<TState, TSignal, TPayload>>? signalQueue = new BlockingCollection<SignalInfo<TState, TSignal, TPayload>>(new ConcurrentQueue<SignalInfo<TState, TSignal, TPayload>>());
-        private readonly StateMachineModel<TState, TSignal, TPayload> context;
+        private readonly StateMachineEngine<TState, TSignal, TPayload> engine;
 
         public AsyncStateMachine(IReadOnlyStateMachineConfiguration<TState, TSignal, TPayload> model)
         {
-            context = new StateMachineModel<TState, TSignal, TPayload>(model);
-            context.TransitionActivated += Context_TransitionActivated;
+            this.engine = new StateMachineEngine<TState, TSignal, TPayload>(model);
+            this.engine.TransitionActivated += Context_TransitionActivated;
         }
 
         private void Context_TransitionActivated(object sender, TransitionActivatedEventArgs<TState, TSignal, TPayload> e)
@@ -27,7 +27,7 @@ namespace MaxRingstrom.CSharpStateMachineLib.StateMachine
 
         public void Init(TState state)
         {
-            context.Init(state);
+            engine.Init(state);
 
             cancellationTokenSource = new CancellationTokenSource();
 
@@ -38,7 +38,7 @@ namespace MaxRingstrom.CSharpStateMachineLib.StateMachine
                     while (!cancellationTokenSource.Token.IsCancellationRequested && signalQueue != null)
                     {
                         var signalInfo = signalQueue.Take(cancellationTokenSource.Token);
-                        context.ProcessSignal(signalInfo);
+                        engine.ProcessSignal(signalInfo);
                     }
 
                     Console.WriteLine("State machine signal dispatcher stopping...");

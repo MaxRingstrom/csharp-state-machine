@@ -42,7 +42,7 @@ namespace CSharpStateMachineLibTest.StateMachine
             string? theTargetValue = "default";
             string expectedValue = "expected";
 
-            var model = new StateMachineConfigurationBuilder<State, Signal, Payload>("Call state machine")
+            var configuration = new StateMachineConfigurationBuilder<State, Signal, Payload>("Call state machine")
 
                 // Idle -Dial-> Dialing
                 .From(State.Idle).To(State.Dialing).On(Signal.Dial)
@@ -53,7 +53,7 @@ namespace CSharpStateMachineLibTest.StateMachine
                         })
                 .Build();
 
-            using (var stateMachine = new AsyncStateMachine<State, Signal, Payload>(model))
+            using (var stateMachine = new AsyncStateMachine<State, Signal, Payload>(configuration))
             {
                 stateMachine.TransitionActivated += StateMachine_TransitionActivated;
 

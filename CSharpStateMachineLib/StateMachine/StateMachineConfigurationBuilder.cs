@@ -4,7 +4,7 @@ namespace MaxRingstrom.CSharpStateMachineLib.StateMachine
 {
     public class StateMachineConfigurationBuilder<TState, TSignal, TPayload> where TState : struct, IConvertible, IComparable where TSignal : struct, IConvertible, IComparable where TPayload : class
     {
-        private StateMachineConfiguration<TState, TSignal, TPayload> configuration;
+        private readonly StateMachineConfiguration<TState, TSignal, TPayload> configuration;
 
         public StateMachineConfigurationBuilder(string name)
         {
@@ -48,28 +48,28 @@ namespace MaxRingstrom.CSharpStateMachineLib.StateMachine
         public class StateMachineTransitionBuilder : ITransitionTargetSelector, ITransitionSignalSelector, ITransitionGuardAndActionSelector
         {
             private readonly TState fromState;
-            private readonly StateMachineConfiguration<TState, TSignal, TPayload> model;
-            private readonly StateMachineConfigurationBuilder<TState, TSignal, TPayload> modelBuilder;
+            private readonly StateMachineConfiguration<TState, TSignal, TPayload> configuration;
+            private readonly StateMachineConfigurationBuilder<TState, TSignal, TPayload> configurationBuilder;
             private TState toState;
             private TSignal signal;
             private Func<TPayload, bool>? guard;
 
-            public StateMachineTransitionBuilder(TState fromState, StateMachineConfiguration<TState, TSignal, TPayload> model, StateMachineConfigurationBuilder<TState, TSignal, TPayload> modelBuilder)
+            public StateMachineTransitionBuilder(TState fromState, StateMachineConfiguration<TState, TSignal, TPayload> configuration, StateMachineConfigurationBuilder<TState, TSignal, TPayload> configurationBuilder)
             {
                 this.fromState = fromState;
-                this.model = model;
-                this.modelBuilder = modelBuilder;
+                this.configuration = configuration;
+                this.configurationBuilder = configurationBuilder;
             }
 
             public StateMachineConfigurationBuilder<TState, TSignal, TPayload> Do(Action<TPayload> transitionFn)
             {
-                model.AddState(fromState);
-                model.AddState(toState);
-                model.AddSignal(signal);
+                configuration.AddState(fromState);
+                configuration.AddState(toState);
+                configuration.AddSignal(signal);
 
-                model.AddTransition(fromState, toState, signal, guard, transitionFn);
+                configuration.AddTransition(fromState, toState, signal, guard, transitionFn);
 
-                return modelBuilder;
+                return configurationBuilder;
             }
 
             public StateMachineConfigurationBuilder<TState, TSignal, TPayload>.ITransitionActionSelector If(Func<TPayload, bool> guard)

@@ -2,11 +2,11 @@
 
 namespace MaxRingstrom.CSharpStateMachineLib.StateMachine.internals
 {
-    public class StateMachineModel<TState, TSignal, TPayload> where TState : struct, IConvertible, IComparable where TSignal : struct, IConvertible, IComparable where TPayload : class
+    public class StateMachineEngine<TState, TSignal, TPayload> where TState : struct, IConvertible, IComparable where TSignal : struct, IConvertible, IComparable where TPayload : class
     {
         public event EventHandler<TransitionActivatedEventArgs<TState, TSignal, TPayload>>? TransitionActivated;
 
-        private readonly IReadOnlyStateMachineConfiguration<TState, TSignal, TPayload> model;
+        private readonly IReadOnlyStateMachineConfiguration<TState, TSignal, TPayload> configuration;
 
         public TState CurrentState
         {
@@ -18,14 +18,14 @@ namespace MaxRingstrom.CSharpStateMachineLib.StateMachine.internals
 
         private TState currentState;
 
-        public StateMachineModel(IReadOnlyStateMachineConfiguration<TState, TSignal, TPayload> model)
+        public StateMachineEngine(IReadOnlyStateMachineConfiguration<TState, TSignal, TPayload> configuration)
         {
-            this.model = model;
+            this.configuration = configuration;
         }
 
         public void ProcessSignal(SignalInfo<TState, TSignal, TPayload> signalInfo)
         {
-            var transitions = model.GetTransitions(currentState, signalInfo.Signal);
+            var transitions = configuration.GetTransitions(currentState, signalInfo.Signal);
             foreach (var transition in transitions)
             {
                 if (transition.Guard == null || transition.Guard(signalInfo.Payload))
