@@ -14,10 +14,10 @@ namespace MaxRingstrom.CSharpStateMachineLib.StateMachine
         private BlockingCollection<SignalInfo<TState, TSignal, TPayload>>? signalQueue = new BlockingCollection<SignalInfo<TState, TSignal, TPayload>>(new ConcurrentQueue<SignalInfo<TState, TSignal, TPayload>>());
         private readonly StateMachineEngine<TState, TSignal, TPayload> engine;
 
-        public AsyncStateMachine(IReadOnlyStateMachineConfiguration<TState, TSignal, TPayload> model)
+        public AsyncStateMachine(IReadOnlyStateMachineConfiguration<TState, TSignal, TPayload> configuration)
         {
-            this.engine = new StateMachineEngine<TState, TSignal, TPayload>(model);
-            this.engine.TransitionActivated += Context_TransitionActivated;
+            engine = new StateMachineEngine<TState, TSignal, TPayload>(configuration);
+            engine.TransitionActivated += Context_TransitionActivated;
         }
 
         private void Context_TransitionActivated(object sender, TransitionActivatedEventArgs<TState, TSignal, TPayload> e)
