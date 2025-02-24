@@ -1,4 +1,3 @@
-using MaxRingstrom.CSharpStateMachineLib;
 using MaxRingstrom.CSharpStateMachineLib.StateMachine;
 using MaxRingstrom.CSharpStateMachineLib.StateMachine.internals;
 using Xunit.Abstractions;

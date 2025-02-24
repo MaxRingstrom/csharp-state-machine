@@ -9,7 +9,7 @@ namespace MaxRingstrom.CSharpStateMachineLib.StateMachine
     {
         public IEnumerable<TransitionModel<TState, TSignal, TPayload>> GetTransitions(TState fromState, TSignal signal);
     }
-    public class StateMachineConfiguration<TState, TSignal, TPayload> : IReadOnlyStateMachineConfiguration<TState, TSignal, TPayload> where TState : struct, IConvertible, IComparable where TSignal : struct, IConvertible, IComparable where TPayload: class
+    public class StateMachineConfiguration<TState, TSignal, TPayload> : IReadOnlyStateMachineConfiguration<TState, TSignal, TPayload> where TState : struct, IConvertible, IComparable where TSignal : struct, IConvertible, IComparable where TPayload : class
     {
         private readonly string name;
         private HashSet<TState> states = new HashSet<TState>();
