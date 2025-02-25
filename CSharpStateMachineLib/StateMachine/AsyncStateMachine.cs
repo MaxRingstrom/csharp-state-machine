@@ -27,14 +27,13 @@ namespace MaxRingstrom.CSharpStateMachineLib.StateMachine
 
         public void Init(TState state)
         {
-            engine.Init(state);
-
             cancellationTokenSource = new CancellationTokenSource();
 
             new Thread(() =>
             {
                 try
                 {
+                    engine.Init(state);
                     while (!cancellationTokenSource.Token.IsCancellationRequested && signalQueue != null)
                     {
                         var signalInfo = signalQueue.Take(cancellationTokenSource.Token);

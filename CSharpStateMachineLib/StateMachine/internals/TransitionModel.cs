@@ -6,11 +6,11 @@ namespace MaxRingstrom.CSharpStateMachineLib.StateMachine.@internal
     {
         public TState From { get; }
         public TState To { get; }
-        public TSignal Signal { get; }
-        public Func<TPayload, bool>? Guard { get; }
-        public Action<TPayload> TransitionFn { get; }
+        public TSignal? Signal { get; }
+        public Func<TPayload?, bool>? Guard { get; }
+        public Action<TPayload?>? TransitionFn { get; }
 
-        internal TransitionModel(TState from, TState to, TSignal signal, Func<TPayload, bool>? guard, Action<TPayload> transitionFn)
+        internal TransitionModel(TState from, TState to, TSignal? signal, Func<TPayload?, bool>? guard, Action<TPayload?>? transitionFn)
         {
             From = from;
             To = to;

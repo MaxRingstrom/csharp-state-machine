@@ -11,7 +11,7 @@ namespace MaxRingstrom.CSharpStateMachineLib.StateMachine
             configuration = new StateMachineConfiguration<TState, TSignal, TPayload>(name);
         }
 
-        public StateMachineTransitionBuilder From(TState fromState)
+        public IFromStateSelectedOptions From(TState fromState)
         {
             return new StateMachineTransitionBuilder(fromState, configuration, this);
         }
@@ -21,37 +21,35 @@ namespace MaxRingstrom.CSharpStateMachineLib.StateMachine
             return configuration;
         }
 
-        public interface ITransitionTargetSelector
+        public interface IFromStateSelectedOptions
         {
-            ITransitionSignalSelector To(TState toState);
+            IToStateSelectedOptions To(TState toState);
         }
 
-        public interface ITransitionSignalSelector
+        public interface IToStateSelectedOptions
         {
-            ITransitionGuardSelector On(TSignal signal);
+            ISignalSelectedOptions On(TSignal signal);
+            ISignalSelectedOptions Automatically();
         }
 
-        public interface ITransitionGuardSelector
+        public interface ISignalSelectedOptions : IGuardSkippedOrSelectedOptions
         {
-            ITransitionActionSelector If(Func<TPayload, bool> guard);
+            IGuardSkippedOrSelectedOptions If(Func<TPayload, bool> guard);
         }
 
-        public interface ITransitionActionSelector
+        public interface IGuardSkippedOrSelectedOptions 
         {
             StateMachineConfigurationBuilder<TState, TSignal, TPayload> Do(Action<TPayload> payload);
+            StateMachineConfigurationBuilder<TState, TSignal, TPayload> Done();
         }
 
-        public interface ITransitionGuardAndActionSelector : ITransitionActionSelector, ITransitionGuardSelector
-        {
-        }
-
-        public class StateMachineTransitionBuilder : ITransitionTargetSelector, ITransitionSignalSelector, ITransitionGuardAndActionSelector
+        public class StateMachineTransitionBuilder : IFromStateSelectedOptions, IToStateSelectedOptions, ISignalSelectedOptions
         {
             private readonly TState fromState;
             private readonly StateMachineConfiguration<TState, TSignal, TPayload> configuration;
             private readonly StateMachineConfigurationBuilder<TState, TSignal, TPayload> configurationBuilder;
             private TState toState;
-            private TSignal signal;
+            private TSignal? signal;
             private Func<TPayload, bool>? guard;
 
             public StateMachineTransitionBuilder(TState fromState, StateMachineConfiguration<TState, TSignal, TPayload> configuration, StateMachineConfigurationBuilder<TState, TSignal, TPayload> configurationBuilder)
@@ -61,30 +59,44 @@ namespace MaxRingstrom.CSharpStateMachineLib.StateMachine
                 this.configurationBuilder = configurationBuilder;
             }
 
-            public StateMachineConfigurationBuilder<TState, TSignal, TPayload> Do(Action<TPayload> transitionFn)
+            public StateMachineConfigurationBuilder<TState, TSignal, TPayload> Do(Action<TPayload>? transitionFn)
             {
                 configuration.AddState(fromState);
                 configuration.AddState(toState);
-                configuration.AddSignal(signal);
+                if (signal != null)
+                {
+                    configuration.AddSignal((TSignal)signal);
+                }
 
                 configuration.AddTransition(fromState, toState, signal, guard, transitionFn);
 
                 return configurationBuilder;
             }
+            public StateMachineConfigurationBuilder<TState, TSignal, TPayload> Done()
+            {
+                return Do(null);
+            }
 
-            public StateMachineConfigurationBuilder<TState, TSignal, TPayload>.ITransitionActionSelector If(Func<TPayload, bool> guard)
+
+            public IGuardSkippedOrSelectedOptions If(Func<TPayload, bool> guard)
             {
                 this.guard = guard;
                 return this;
             }
 
-            public ITransitionGuardSelector On(TSignal signal)
+            public ISignalSelectedOptions On(TSignal signal)
             {
                 this.signal = signal;
                 return this;
             }
 
-            public ITransitionSignalSelector To(TState toState)
+            public ISignalSelectedOptions Automatically()
+            {
+                signal = null;
+                return this;
+            }
+
+            public IToStateSelectedOptions To(TState toState)
             {
                 this.toState = toState;
                 return this;

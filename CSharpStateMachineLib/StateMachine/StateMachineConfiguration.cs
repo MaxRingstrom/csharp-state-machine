@@ -7,7 +7,7 @@ namespace MaxRingstrom.CSharpStateMachineLib.StateMachine
 {
     public interface IReadOnlyStateMachineConfiguration<TState, TSignal, TPayload> where TState : struct, IConvertible, IComparable where TSignal : struct, IConvertible, IComparable where TPayload : class
     {
-        public IEnumerable<TransitionModel<TState, TSignal, TPayload>> GetTransitions(TState fromState, TSignal signal);
+        public IEnumerable<TransitionModel<TState, TSignal, TPayload>> GetTransitions(TState fromState, TSignal? signal);
     }
     public class StateMachineConfiguration<TState, TSignal, TPayload> : IReadOnlyStateMachineConfiguration<TState, TSignal, TPayload> where TState : struct, IConvertible, IComparable where TSignal : struct, IConvertible, IComparable where TPayload : class
     {
@@ -21,9 +21,9 @@ namespace MaxRingstrom.CSharpStateMachineLib.StateMachine
             this.name = name;
         }
 
-        public IEnumerable<TransitionModel<TState, TSignal, TPayload>> GetTransitions(TState fromState, TSignal signal)
+        public IEnumerable<TransitionModel<TState, TSignal, TPayload>> GetTransitions(TState fromState, TSignal? signal)
         {
-            return (transitions.GetValueOrDefault(fromState) ?? Enumerable.Empty<TransitionModel<TState, TSignal, TPayload>>()).Where(t => t.From.Equals(fromState) && t.Signal.Equals(signal));
+            return (transitions.GetValueOrDefault(fromState) ?? Enumerable.Empty<TransitionModel<TState, TSignal, TPayload>>()).Where(t => t.From.Equals(fromState) && signal == null ? t.Signal == null : signal.Equals(t.Signal));
         }
 
         internal void AddSignal(TSignal signal)
@@ -36,7 +36,7 @@ namespace MaxRingstrom.CSharpStateMachineLib.StateMachine
             states.Add(state);
         }
 
-        internal void AddTransition(TState fromState, TState toState, TSignal signal, Func<TPayload, bool>? guard, Action<TPayload> transitionFn)
+        internal void AddTransition(TState fromState, TState toState, TSignal? signal, Func<TPayload, bool>? guard, Action<TPayload>? transitionFn)
         {
             if (!transitions.TryGetValue(fromState, out var transitionsForFromState))
             {

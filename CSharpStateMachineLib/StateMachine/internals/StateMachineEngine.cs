@@ -30,28 +30,34 @@ namespace MaxRingstrom.CSharpStateMachineLib.StateMachine.internals
             {
                 if (transition.Guard == null || transition.Guard(signalInfo.Payload))
                 {
-                    transition.TransitionFn(signalInfo.Payload);
+                    transition.TransitionFn?.Invoke(signalInfo.Payload);
+
                     SwitchState(currentState, transition.To, signalInfo.Signal, signalInfo.Payload);
+                    
                     signalInfo.MarkComplete();
                     break;
                 }
             }
         }
 
-        private void OnTransitionActivated(TState currentState, TState to, TSignal signal, TPayload? payload)
+        private void OnTransitionActivated(TState currentState, TState to, TSignal? signal, TPayload? payload)
         {
             TransitionActivated?.Invoke(this, new TransitionActivatedEventArgs<TState, TSignal, TPayload>(currentState, to, signal, payload));
         }
 
-        private void SwitchState(TState currentState, TState to, TSignal signal, TPayload? payload)
+        private void SwitchState(TState currentState, TState to, TSignal? signal, TPayload? payload)
         {
             OnTransitionActivated(currentState, to, signal, payload);
             this.currentState = to;
+
+            // Process auto signal
+            ProcessSignal(new SignalInfo<TState, TSignal, TPayload>(null, null, null));
         }
 
         public void Init(TState state)
         {
             currentState = state;
+            ProcessSignal(new SignalInfo<TState, TSignal, TPayload>(null, null, new System.Threading.ManualResetEventSlim()));
         }
     }
 }
